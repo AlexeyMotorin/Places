@@ -13,7 +13,8 @@ class Places: Object {
     @objc dynamic var locationPlace: String?
     @objc dynamic var typePlace: String?
     @objc dynamic var imageData: Data?
-    
+    @objc dynamic var date = Date()
+ 
     convenience init(name: String, location: String?, type: String?, image: Data?) {
         self.init()
         namePlace = name

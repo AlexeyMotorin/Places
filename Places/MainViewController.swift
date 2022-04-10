@@ -11,6 +11,7 @@ import RealmSwift
 class MainViewController: UIViewController {
     
     var places: Results<Places>!
+    var ascendingSorting = true
     
     private lazy var placeTableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -31,6 +32,14 @@ class MainViewController: UIViewController {
         segment.selectedSegmentIndex = 0
         segment.addTarget(self, action: #selector(segmentedValueChanged(_:)), for: .valueChanged)
         return segment
+    }()
+    
+    private lazy var reversButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(title: "",
+                                     style: .plain, target: self,
+                                     action: #selector(reversSorted))
+        button.image = UIImage(systemName: "arrow.up")
+        return button
     }()
     
     override func viewDidLoad() {
@@ -76,18 +85,38 @@ class MainViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(showAddPlaceVC))
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), style: .plain, target: self, action: #selector(sorted))
+        navigationItem.leftBarButtonItem = reversButton
     }
     
     @objc private func showAddPlaceVC() {
         navigationController?.pushViewController(NewPlacesViewController(), animated: true)
     }
     
-    @objc private func sorted() {
+    @objc private func reversSorted() {
+        ascendingSorting.toggle()
         
+        if ascendingSorting {
+            reversButton.image = UIImage(systemName: "arrow.down")
+            reversSort()
+        } else {
+            reversButton.image = UIImage(systemName: "arrow.up")
+            reversSort()
+        }
     }
     
     @objc private func segmentedValueChanged(_ sender: UISegmentedControl) {
+        reversSort()
+        
+    }
+    
+    private func reversSort() {
+        if segmentSort.selectedSegmentIndex == 0 {
+            places = places.sorted(byKeyPath: "date", ascending: ascendingSorting)
+        } else {
+            places = places.sorted(byKeyPath: "namePlace", ascending: ascendingSorting)
+        }
+        
+        placeTableView.reloadData()
         
     }
     
