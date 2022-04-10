@@ -5,26 +5,25 @@
 //  Created by Алексей Моторин on 04.04.2022.
 //
 
-import Foundation
-import UIKit
+import RealmSwift
 
-struct Places {
+class Places: Object {
     
-    var restaurantImage: String?
-    var namePlace: String
-    var locationPlace: String?
-    var typePlace: String?
-    var image: UIImage?
+    @objc dynamic var namePlace: String = ""
+    @objc dynamic var locationPlace: String?
+    @objc dynamic var typePlace: String?
+    @objc dynamic var imageData: Data?
     
+    convenience init(name: String, location: String?, type: String?, image: Data?) {
+        self.init()
+        namePlace = name
+        locationPlace = location
+        typePlace = type
+        imageData = image
+    }
+        
 }
 
-struct MyPlaces {
-    
-   static var array = [
-        Places(restaurantImage: "mak", namePlace: "mak", locationPlace: "Москва", typePlace: "Ресторан", image: nil),
-        Places(restaurantImage: "bk", namePlace: "bk", locationPlace: "Москва", typePlace: "Ресторан", image: nil),
-        Places(restaurantImage: "kfc", namePlace: "kfc", locationPlace: "Москва", typePlace: "Ресторан", image: nil)
-      ]
-}
+
 
 

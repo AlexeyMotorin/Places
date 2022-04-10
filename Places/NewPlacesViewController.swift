@@ -9,7 +9,15 @@ import UIKit
 
 class NewPlacesViewController: UIViewController, UINavigationControllerDelegate {
     
-    var newPlace: Places?
+    var currentPlace: Places? {
+        didSet {
+            nameTextField.text = currentPlace?.namePlace
+            locationTextField.text = currentPlace?.locationPlace
+            typeTextField.text = currentPlace?.typePlace
+            imagePlace.image = UIImage(data: (currentPlace?.imageData!)!)
+        }
+    }
+    
     var imageIsChanged = false
     
     private lazy var placeScrollView: UIScrollView = {
@@ -26,12 +34,13 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return contentView
     }()
     
-    private lazy var imagePlace: UIImageView = {
+    lazy var imagePlace: UIImageView = {
         let image = UIImageView(image: UIImage(named: "Photo"))
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.contentMode = .center
+        image.contentMode = .scaleAspectFit
         image.backgroundColor = .lightGray
         image.isUserInteractionEnabled = true
+        image.clipsToBounds = true
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapFunc))
         tap.numberOfTapsRequired = 1
@@ -50,7 +59,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return stack
     }()
     
-    private lazy var namePlace: UILabel = {
+    lazy var namePlace: UILabel = {
         let lable = UILabel()
         lable.translatesAutoresizingMaskIntoConstraints = false
         lable.font = UIFont(name: "Apple Sd Gothic Neo", size: 20)
@@ -59,7 +68,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return lable
     }()
     
-    private lazy var locationPlace: UILabel = {
+    lazy var locationPlace: UILabel = {
         let lable = UILabel()
         lable.translatesAutoresizingMaskIntoConstraints = false
         lable.font = UIFont(name: "Apple Sd Gothic Neo", size: 20)
@@ -68,7 +77,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return lable
     }()
     
-    private lazy var typePlace: UILabel = {
+    lazy var typePlace: UILabel = {
         let lable = UILabel()
         lable.translatesAutoresizingMaskIntoConstraints = false
         lable.font = UIFont(name: "Apple Sd Gothic Neo", size: 20)
@@ -90,7 +99,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         textFeld.placeholder = " Place name"
         
         //если текст филд пустой saveButton не активна
-        textFeld.addTarget(self, action: #selector(textFeldChangeed), for: .editingChanged) 
+        textFeld.addTarget(self, action: #selector(textFeldChangeed), for: .editingChanged)
         return textFeld
     }()
     
@@ -133,9 +142,10 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupNavigationBar()
         setupView()
-        
+        setupEditScreen()
         
         NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: nil) { nc in
             if let kbdSize = (nc.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
@@ -157,9 +167,11 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         nc.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    
     private func setupNavigationBar() {
         navigationItem.title = "New Place"
         view.backgroundColor = .white
+        self.navigationController?.navigationBar.prefersLargeTitles = false
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(closeVC))
         
@@ -206,7 +218,16 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             stackObject.heightAnchor.constraint(equalToConstant: 250)
             
         ])
-        
+    }
+    
+    private func setupEditScreen() {
+        guard currentPlace != nil else { return }
+        navigationItem.titleView?.backgroundColor = .white
+        imageIsChanged = true
+        navigationItem.leftBarButtonItem = nil
+        saveButton.isEnabled = true
+        navigationItem.title = currentPlace?.namePlace
+        self.navigationController?.navigationBar.prefersLargeTitles = true
     }
     
     // MARK: left and right navigationItem button
@@ -216,6 +237,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
     
     @objc private func saveData() {
         
+        
         var image: UIImage?
         
         if imageIsChanged {
@@ -224,13 +246,24 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             image = UIImage(named: "FoodIcon")
         }
         
-        newPlace = Places(restaurantImage: nil,
-                          namePlace: nameTextField.text ?? "Error",
-                          locationPlace: locationTextField.text,
-                          typePlace: typeTextField.text,
-                          image: image)
+        let imageData = image?.pngData()
         
-        MyPlaces.array.append(newPlace ?? Places(namePlace: "Error"))
+        let newPlace = Places(name: nameTextField.text ?? "Error",
+                              location: locationTextField.text,
+                              type: typeTextField.text,
+                              image: imageData)
+        
+        if currentPlace != nil {
+            try! realm.write {
+                currentPlace?.namePlace = newPlace.namePlace
+                currentPlace?.locationPlace = newPlace.locationPlace
+                currentPlace?.typePlace = newPlace.typePlace
+                currentPlace?.imageData = newPlace.imageData
+            }
+        } else {
+            StorageManager.saveObject(newPlace)
+        }
+        
         navigationController?.popViewController(animated: true)
     }
     

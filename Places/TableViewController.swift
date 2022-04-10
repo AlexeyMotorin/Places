@@ -6,17 +6,18 @@
 //
 
 import UIKit
+import RealmSwift
 
 class TableViewController: UITableViewController {
     
-    
+    var places: Results<Places>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         
-        tableView.delegate = self
-        tableView.dataSource = self
+        places = realm.objects(Places.self)
+        
+        setupNavigationBar()
         
         tableView.register(CustomTableViewCell.self, forCellReuseIdentifier: "CustomCell")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
@@ -24,7 +25,13 @@ class TableViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationItem.title = "Мои места"
         tableView.reloadData()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationItem.title = ""
     }
     
     private func setupNavigationBar() {
@@ -33,47 +40,59 @@ class TableViewController: UITableViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(showAddPlaceVC))
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down"), style: .plain, target: self, action: #selector(sorted))
     }
     
     @objc private func showAddPlaceVC() {
         navigationController?.pushViewController(NewPlacesViewController(), animated: true)
     }
+    
+    @objc private func sorted() {
+        
+    }
+
                                                                         
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        MyPlaces.array.count
+        places.isEmpty ? 0 : places.count
+        
     }
 
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomCell", for: indexPath) as! CustomTableViewCell
-        let place = MyPlaces.array[indexPath.row]
+        let place = places[indexPath.row]
         
         cell.namePlace.text = place.namePlace
         cell.locationPlace.text = place.locationPlace
         cell.typePlace.text = place.typePlace
+        cell.imagePlace.image = UIImage(data: place.imageData!)
         
-        if place.image == nil {
-            cell.imagePlace.image = UIImage(named: place.restaurantImage ?? "Error")
-        } else {
-            cell.imagePlace.image = place.image
-        }
-            
         return cell
     }
     
-
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    // MARK: Table view delegate
+    
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
     }
-    */
-
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        
+        let place = places[indexPath.row]
+        
+        if editingStyle == .delete {
+            tableView.beginUpdates()
+            StorageManager.deleteObject(place)
+            tableView.deleteRows(at: [indexPath], with: .fade )
+            tableView.endUpdates()
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let placesVC = NewPlacesViewController()
+        placesVC.currentPlace = places[indexPath.row]        
+        navigationController?.pushViewController(placesVC, animated: true)
+    }
 }
