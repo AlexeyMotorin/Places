@@ -72,7 +72,7 @@ class MainViewController: UIViewController {
             placeTableView.topAnchor.constraint(equalTo: segmentSort.bottomAnchor),
             placeTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             placeTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            placeTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            placeTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
         places = realm.objects(Places.self)
@@ -171,6 +171,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         cell.locationPlace.text = place.locationPlace
         cell.typePlace.text = place.typePlace
         cell.imagePlace.image = UIImage(data: place.imageData!)
+        
         
         return cell
     }

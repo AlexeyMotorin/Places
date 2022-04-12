@@ -15,6 +15,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             locationTextField.text = currentPlace?.locationPlace
             typeTextField.text = currentPlace?.typePlace
             imagePlace.image = UIImage(data: (currentPlace?.imageData!)!)
+            raitingStackView.raiting = Int(currentPlace?.raiting ?? 0)
+            
         }
     }
     
@@ -53,13 +55,20 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
     private lazy var stackObject: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.spacing = 10
+        stack.spacing = 0
         stack.axis = .vertical
         stack.distribution = .fillEqually
         return stack
     }()
     
-    private lazy var raitingStackView = RaitingControl()
+    private var raitingStackView: RaitingControl = {
+        let stackView = RaitingControl()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.spacing = 10
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        return stackView
+    }()
     
     lazy var namePlace: UILabel = {
         let lable = UILabel()
@@ -221,10 +230,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             stackObject.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             stackObject.heightAnchor.constraint(equalToConstant: 250),
             
-            raitingStackView.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 9),
-            raitingStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            raitingStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            raitingStackView.heightAnchor.constraint(equalToConstant: 140)
+            raitingStackView.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 20),
+            raitingStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
             
         ])
     }
@@ -260,7 +267,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         let newPlace = Places(name: nameTextField.text ?? "Error",
                               location: locationTextField.text,
                               type: typeTextField.text,
-                              image: imageData)
+                              image: imageData,
+                              raiting: Double(raitingStackView.raiting))
         
         if currentPlace != nil {
             try! realm.write {
@@ -268,6 +276,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
                 currentPlace?.locationPlace = newPlace.locationPlace
                 currentPlace?.typePlace = newPlace.typePlace
                 currentPlace?.imageData = newPlace.imageData
+                currentPlace?.raiting = newPlace.raiting
+                
             }
         } else {
             StorageManager.saveObject(newPlace)
