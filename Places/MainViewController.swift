@@ -171,6 +171,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         cell.locationPlace.text = place.locationPlace
         cell.typePlace.text = place.typePlace
         cell.imagePlace.image = UIImage(data: place.imageData!)
+        cell.ratingCount.text = String(place.raiting)
         
         
         return cell

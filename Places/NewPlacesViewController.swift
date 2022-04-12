@@ -16,7 +16,6 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             typeTextField.text = currentPlace?.typePlace
             imagePlace.image = UIImage(data: (currentPlace?.imageData!)!)
             raitingStackView.raiting = Int(currentPlace?.raiting ?? 0)
-            
         }
     }
     

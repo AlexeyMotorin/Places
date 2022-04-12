@@ -9,8 +9,6 @@ import UIKit
 
 class CustomTableViewCell: UITableViewCell {
     
-
-    
      lazy var stackLabels: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -18,6 +16,31 @@ class CustomTableViewCell: UITableViewCell {
         stack.axis = .vertical
         return stack
     }()
+    
+    lazy var raitingStackView: UIStackView = {
+       let stack = UIStackView()
+       stack.translatesAutoresizingMaskIntoConstraints = false
+       stack.spacing = 10
+       stack.axis = .horizontal
+       return stack
+   }()
+    
+    lazy var imageRaiting: UIImageView = {
+       let image = UIImageView(image: UIImage(named: "thumpsUpAndDown"))
+       image.translatesAutoresizingMaskIntoConstraints = false
+        image.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        image.widthAnchor.constraint(equalToConstant: 60).isActive = true
+       return image
+   }()
+    
+    lazy var ratingCount: UILabel = {
+        let lable = UILabel()
+        lable.translatesAutoresizingMaskIntoConstraints = false
+        lable.font = UIFont(name: "Apple Sd Gothic Neo", size: 18)
+        lable.text = "5"
+        return lable
+    }()
+    
     
      lazy var imagePlace: UIImageView = {
         let image = UIImageView()
@@ -60,10 +83,15 @@ class CustomTableViewCell: UITableViewCell {
     private func viewSetup() {
         contentView.addSubview(stackLabels)
         contentView.addSubview(imagePlace)
+        contentView.addSubview(raitingStackView)
+        
+        raitingStackView.addArrangedSubview(imageRaiting)
+        raitingStackView.addArrangedSubview(ratingCount)
+        
         stackLabels.addArrangedSubview(namePlace)
         stackLabels.addArrangedSubview(locationPlace)
         stackLabels.addArrangedSubview(typePlace)
-        
+                
         NSLayoutConstraint.activate([
             
             imagePlace.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -73,8 +101,11 @@ class CustomTableViewCell: UITableViewCell {
             
             stackLabels.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15),
             stackLabels.leadingAnchor.constraint(equalTo: imagePlace.trailingAnchor, constant: 15),
-            stackLabels.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 16),
+            stackLabels.widthAnchor.constraint(equalToConstant: 150),
             stackLabels.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15),
+            
+            raitingStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            raitingStackView.leadingAnchor.constraint(equalTo: stackLabels.trailingAnchor, constant: 10),    
         ])
         
     }
