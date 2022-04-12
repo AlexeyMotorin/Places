@@ -26,10 +26,10 @@ class CustomTableViewCell: UITableViewCell {
    }()
     
     lazy var imageRaiting: UIImageView = {
-       let image = UIImageView(image: UIImage(named: "thumpsUpAndDown"))
+       let image = UIImageView(image: UIImage(named: "filledStar"))
        image.translatesAutoresizingMaskIntoConstraints = false
-        image.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        image.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        image.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        image.widthAnchor.constraint(equalToConstant: 44).isActive = true
        return image
    }()
     
