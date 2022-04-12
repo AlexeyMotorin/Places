@@ -59,6 +59,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return stack
     }()
     
+    private lazy var raitingStackView = RaitingControl()
+    
     lazy var namePlace: UILabel = {
         let lable = UILabel()
         lable.translatesAutoresizingMaskIntoConstraints = false
@@ -186,6 +188,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         
         contentView.addSubview(imagePlace)
         contentView.addSubview(stackObject)
+        contentView.addSubview(raitingStackView)
         
         stackObject.addArrangedSubview(namePlace)
         stackObject.addArrangedSubview(nameTextField)
@@ -193,6 +196,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         stackObject.addArrangedSubview(locationTextField)
         stackObject.addArrangedSubview(typePlace)
         stackObject.addArrangedSubview(typeTextField)
+        
         
         NSLayoutConstraint.activate([
             
@@ -215,7 +219,12 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             stackObject.topAnchor.constraint(equalTo: imagePlace.bottomAnchor, constant: 9),
             stackObject.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             stackObject.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            stackObject.heightAnchor.constraint(equalToConstant: 250)
+            stackObject.heightAnchor.constraint(equalToConstant: 250),
+            
+            raitingStackView.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 9),
+            raitingStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            raitingStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            raitingStackView.heightAnchor.constraint(equalToConstant: 140)
             
         ])
     }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B0DB26728054C9600C6DD0C /* RaitingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0DB26628054C9600C6DD0C /* RaitingControl.swift */; };
 		5B1E022F27FC1CB10027C314 /* NewPlacesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E022E27FC1CB00027C314 /* NewPlacesViewController.swift */; };
 		5B26914427FAC21000AFE885 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B26914327FAC21000AFE885 /* AppDelegate.swift */; };
 		5B26914627FAC21000AFE885 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B26914527FAC21000AFE885 /* SceneDelegate.swift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5B0DB26628054C9600C6DD0C /* RaitingControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaitingControl.swift; sourceTree = "<group>"; };
 		5B1E022E27FC1CB00027C314 /* NewPlacesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlacesViewController.swift; sourceTree = "<group>"; };
 		5B26914027FAC21000AFE885 /* Places.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Places.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B26914327FAC21000AFE885 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -73,6 +75,7 @@
 				5B26914527FAC21000AFE885 /* SceneDelegate.swift */,
 				5BD87B7227FEB7E600A48A8A /* MainViewController.swift */,
 				5B1E022E27FC1CB00027C314 /* NewPlacesViewController.swift */,
+				5B0DB26628054C9600C6DD0C /* RaitingControl.swift */,
 				5B26915B27FB69FA00AFE885 /* modelPlace.swift */,
 				5B26915927FB5B8D00AFE885 /* CustomTableViewCell.swift */,
 				5BFA0ABF2800095A001D365A /* Storage */,
@@ -228,6 +231,7 @@
 				5BFA0ABE2800093F001D365A /* StorageManager.swift in Sources */,
 				5B26914627FAC21000AFE885 /* SceneDelegate.swift in Sources */,
 				5B26915C27FB69FA00AFE885 /* modelPlace.swift in Sources */,
+				5B0DB26728054C9600C6DD0C /* RaitingControl.swift in Sources */,
 				5B1E022F27FC1CB10027C314 /* NewPlacesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

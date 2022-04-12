@@ -10,8 +10,23 @@ import RealmSwift
 
 class MainViewController: UIViewController {
     
-    var places: Results<Places>!
-    var ascendingSorting = true
+    
+    private let searchController = UISearchController(searchResultsController: nil)
+    private var places: Results<Places>!
+    
+    private var filtredPlaces: Results<Places>! // тут отфильтрованные записи
+   
+    private var searchBarIsEmpty: Bool {
+        guard let text = searchController.searchBar.text else { return false }
+        return text.isEmpty
+    }
+    
+    private var isFiltering: Bool {
+        return searchController.isActive && !searchBarIsEmpty
+    }
+    
+    private var ascendingSorting = true
+    
     
     private lazy var placeTableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -44,6 +59,7 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .white
         view.addSubview(placeTableView)
         view.addSubview(segmentSort)
@@ -53,17 +69,17 @@ class MainViewController: UIViewController {
             segmentSort.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             segmentSort.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            placeTableView.topAnchor.constraint(equalTo: segmentSort.bottomAnchor, constant: -34),
+            placeTableView.topAnchor.constraint(equalTo: segmentSort.bottomAnchor),
             placeTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             placeTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             placeTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         places = realm.objects(Places.self)
-        
         setupNavigationBar()
         
-        
+        setupSearchController()
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,6 +94,7 @@ class MainViewController: UIViewController {
         navigationItem.title = ""
     }
     
+    // MARK: setup NavigationBar
     private func setupNavigationBar() {
         navigationItem.title = "Мои места"
         
@@ -86,6 +103,15 @@ class MainViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(showAddPlaceVC))
         
         navigationItem.leftBarButtonItem = reversButton
+    }
+    
+    // MARK: setup searchController
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self // получать информации должен быть наш класс
+        searchController.obscuresBackgroundDuringPresentation = false // позволяет взаимодействовать с результатом поиска
+        searchController.searchBar.placeholder = "Поиск"
+        navigationItem.searchController = searchController // добавили поиск в нав бар
+        definesPresentationContext = true // позволяет отпустить поиск при переходе на другой экран
     }
     
     @objc private func showAddPlaceVC() {
@@ -106,7 +132,6 @@ class MainViewController: UIViewController {
     
     @objc private func segmentedValueChanged(_ sender: UISegmentedControl) {
         reversSort()
-        
     }
     
     private func reversSort() {
@@ -115,9 +140,7 @@ class MainViewController: UIViewController {
         } else {
             places = places.sorted(byKeyPath: "namePlace", ascending: ascendingSorting)
         }
-        
         placeTableView.reloadData()
-        
     }
     
 }
@@ -127,13 +150,22 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: - Table view data source
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        places.isEmpty ? 0 : places.count
+        if isFiltering {
+            return filtredPlaces.count
+        }
+        return places.isEmpty ? 0 : places.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomCell", for: indexPath) as! CustomTableViewCell
-        let place = places[indexPath.row]
+        var place = Places()
+        
+        if isFiltering {
+            place = filtredPlaces[indexPath.row]
+        } else {
+            place = places[indexPath.row]
+        }
         
         cell.namePlace.text = place.namePlace
         cell.locationPlace.text = place.locationPlace
@@ -144,7 +176,6 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     // MARK: Table view delegate
-    
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .delete
@@ -163,8 +194,27 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var place = Places()
+        
+        if isFiltering {
+            place = filtredPlaces[indexPath.row]
+        } else {
+            place = places[indexPath.row]
+        }
+        
         let placesVC = NewPlacesViewController()
-        placesVC.currentPlace = places[indexPath.row]
+        placesVC.currentPlace = place
         navigationController?.pushViewController(placesVC, animated: true)
+    }
+}
+
+extension MainViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchController.searchBar.text!)
+    }
+    
+    private func filterContentForSearchText (_ searchText: String) {
+        filtredPlaces = places.filter("namePlace CONTAINS[c] %@ OR locationPlace CONTAINS[c] %@" , searchText, searchText)
+        placeTableView.reloadData()
     }
 }
