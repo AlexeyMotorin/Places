@@ -7,7 +7,7 @@
 
 ## Stack:
 
-* верстка кодом
+* верстка кодом (UIKIT)
 * Auto Layout
 * NavigationController (push/pop)
 * TableView
