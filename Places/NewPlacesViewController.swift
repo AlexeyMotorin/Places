@@ -149,6 +149,15 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return button
     }()
     
+    private lazy var showMapButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "mapIcon"), for: .normal)
+        button.addTarget(self, action: #selector(showMap), for: .touchUpInside)
+        button.alpha = 0.7
+        return button
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -198,6 +207,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         contentView.addSubview(stackObject)
         contentView.addSubview(raitingStackView)
         
+        imagePlace.addSubview(showMapButton)
+        
         stackObject.addArrangedSubview(namePlace)
         stackObject.addArrangedSubview(nameTextField)
         stackObject.addArrangedSubview(locationPlace)
@@ -230,7 +241,12 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             stackObject.heightAnchor.constraint(equalToConstant: 250),
             
             raitingStackView.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 20),
-            raitingStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            raitingStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            showMapButton.topAnchor.constraint(equalTo: imagePlace.topAnchor, constant: 10),
+            showMapButton.trailingAnchor.constraint(equalTo: imagePlace.trailingAnchor, constant: -10),
+            showMapButton.heightAnchor.constraint(equalToConstant: 50),
+            showMapButton.widthAnchor.constraint(equalToConstant: 50)
             
         ])
     }
@@ -252,15 +268,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
     
     @objc private func saveData() {
         
-        
-        var image: UIImage?
-        
-        if imageIsChanged {
-            image = imagePlace.image
-        } else {
-            image = UIImage(named: "FoodIcon")
-        }
-        
+        let image = imageIsChanged ? imagePlace.image : UIImage(named: "FoodIcon")
+    
         let imageData = image?.pngData()
         
         let newPlace = Places(name: nameTextField.text ?? "Error",
@@ -315,6 +324,21 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         actionSheet.addAction(cancel)
         present(actionSheet, animated: true)
     }
+    
+    // MARK: tap button Show Map
+    @objc private func showMap() {
+        let mapVC = MapViewController()
+        mapVC.modalTransitionStyle = .flipHorizontal
+        mapVC.modalPresentationStyle = .overFullScreen
+        
+        mapVC.place.namePlace = nameTextField.text!
+        mapVC.place.locationPlace = locationTextField.text
+        mapVC.place.typePlace = typeTextField.text
+        mapVC.place.imageData = imagePlace.image?.pngData()
+                
+        present(mapVC, animated: true)
+    }
+
 }
 
 
