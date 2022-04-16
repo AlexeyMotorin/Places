@@ -15,6 +15,7 @@ class MapViewController: UIViewController {
     var place = Places()
     let identifier = "identifier"
     let locationManager = CLLocationManager()
+    let regionInMeters: Double = 1000
     
     private var mapKit: MKMapView = {
         let mapView = MKMapView(frame: UIScreen.main.bounds)
@@ -32,6 +33,14 @@ class MapViewController: UIViewController {
         return button
     }()
     
+    private lazy var myLocationButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "myLocation"), for: .normal)
+        button.addTarget(self, action: #selector(showMyLocation), for: .touchUpInside)
+        return button
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,17 +55,30 @@ class MapViewController: UIViewController {
         mapKit.delegate = self
         
         mapKit.addSubview(closeMapButton)
+        mapKit.addSubview(myLocationButton)
         
         NSLayoutConstraint.activate([
             closeMapButton.topAnchor.constraint(equalTo: mapKit.topAnchor, constant: 60),
             closeMapButton.trailingAnchor.constraint(equalTo: mapKit.trailingAnchor, constant: -40),
             closeMapButton.heightAnchor.constraint(equalToConstant: 30),
-            closeMapButton.widthAnchor.constraint(equalToConstant: 30)
+            closeMapButton.widthAnchor.constraint(equalToConstant: 30),
+            
+            myLocationButton.bottomAnchor.constraint(equalTo: mapKit.bottomAnchor, constant: -70),
+            myLocationButton.trailingAnchor.constraint(equalTo: mapKit.trailingAnchor, constant: -40),
+            myLocationButton.heightAnchor.constraint(equalToConstant: 50),
+            myLocationButton.widthAnchor.constraint(equalToConstant: 50),
         ])
     }
     
     @objc private func closeMap() {
         dismiss(animated: true)
+    }
+    
+    @objc private func showMyLocation() {
+        if let location = locationManager.location?.coordinate {
+            let region = MKCoordinateRegion(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+            mapKit.setRegion(region, animated: true)
+        }
     }
     
     private func setupPlaceMark() {
@@ -116,7 +138,7 @@ class MapViewController: UIViewController {
             break
         case .denied:
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.showAlert(title: "Нельзя определить Ваше местоположение", message: "Перейдите в настройки Places -> Геолокация")
+                self.showAlert(title: "Ваша локация недоступна", message: "Перейдите в настройки Places -> Геолокация")
             }
             break
         case .authorizedAlways:

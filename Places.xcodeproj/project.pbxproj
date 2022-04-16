@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5B0DB26728054C9600C6DD0C /* RaitingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0DB26628054C9600C6DD0C /* RaitingControl.swift */; };
 		5B1E022F27FC1CB10027C314 /* NewPlacesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E022E27FC1CB00027C314 /* NewPlacesViewController.swift */; };
+		5B1F14B9280AE9AF009CC508 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5B1F14B8280AE9AF009CC508 /* .gitignore */; };
 		5B26914427FAC21000AFE885 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B26914327FAC21000AFE885 /* AppDelegate.swift */; };
 		5B26914627FAC21000AFE885 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B26914527FAC21000AFE885 /* SceneDelegate.swift */; };
 		5B26914D27FAC21100AFE885 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B26914C27FAC21100AFE885 /* Assets.xcassets */; };
@@ -24,6 +25,7 @@
 /* Begin PBXFileReference section */
 		5B0DB26628054C9600C6DD0C /* RaitingControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaitingControl.swift; sourceTree = "<group>"; };
 		5B1E022E27FC1CB00027C314 /* NewPlacesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPlacesViewController.swift; sourceTree = "<group>"; };
+		5B1F14B8280AE9AF009CC508 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		5B26914027FAC21000AFE885 /* Places.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Places.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B26914327FAC21000AFE885 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5B26914527FAC21000AFE885 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -55,6 +57,7 @@
 		5B26913727FAC21000AFE885 = {
 			isa = PBXGroup;
 			children = (
+				5B1F14B8280AE9AF009CC508 /* .gitignore */,
 				5B26914227FAC21000AFE885 /* Places */,
 				5B26914127FAC21000AFE885 /* Products */,
 				6216A92467AF82B73A7EFC09 /* Pods */,
@@ -175,6 +178,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B26915027FAC21100AFE885 /* LaunchScreen.storyboard in Resources */,
+				5B1F14B9280AE9AF009CC508 /* .gitignore in Resources */,
 				5B26914D27FAC21100AFE885 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -158,6 +158,14 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         return button
     }()
     
+    private lazy var showLocationMapButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "myLocation"), for: .normal)
+        button.addTarget(self, action: #selector(showMap), for: .touchUpInside)
+        return button
+    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -216,6 +224,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         stackObject.addArrangedSubview(typePlace)
         stackObject.addArrangedSubview(typeTextField)
         
+        locationPlace.addSubview(showLocationMapButton)
+        
         
         NSLayoutConstraint.activate([
             
@@ -246,8 +256,12 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             showMapButton.topAnchor.constraint(equalTo: imagePlace.topAnchor, constant: 10),
             showMapButton.trailingAnchor.constraint(equalTo: imagePlace.trailingAnchor, constant: -10),
             showMapButton.heightAnchor.constraint(equalToConstant: 50),
-            showMapButton.widthAnchor.constraint(equalToConstant: 50)
+            showMapButton.widthAnchor.constraint(equalToConstant: 50),
             
+            showLocationMapButton.topAnchor.constraint(equalTo: locationPlace.topAnchor, constant: 7),
+            showLocationMapButton.trailingAnchor.constraint(equalTo: locationPlace.trailingAnchor, constant: -10),
+            showLocationMapButton.heightAnchor.constraint(equalToConstant: 50),
+            showLocationMapButton.widthAnchor.constraint(equalToConstant: 50),
         ])
     }
     
