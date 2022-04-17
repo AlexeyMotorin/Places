@@ -141,7 +141,7 @@ class MapViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    // сохраняем адрес в строке locationTextField, меняем картинку на "done", затем через секунду возвращаем кнопку
+    // сохраняем адрес в строке locationTextField, меняем картинку на "done", затем через секунду закрываем контроллер
     @objc private func addAdress() {
         addAdressButton.showAnimation {
             self.delegate?.sendAdress(self.adress)
@@ -159,8 +159,7 @@ class MapViewController: UIViewController {
     }
     
     @objc private func updateImages() {
-        self.addAdressButton.isHidden = false
-        self.imageDone.isHidden = true
+        dismiss(animated: true)
     }
     
     @objc private func showMyLocation() {

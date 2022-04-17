@@ -25,13 +25,6 @@ class CustomTableViewCell: UITableViewCell {
        return stack
    }()
     
-    lazy var imageRaiting: UIImageView = {
-       let image = UIImageView(image: UIImage(named: "filledStar"))
-       image.translatesAutoresizingMaskIntoConstraints = false
-        image.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        image.widthAnchor.constraint(equalToConstant: 44).isActive = true
-       return image
-   }()
     
     lazy var ratingCount: UILabel = {
         let lable = UILabel()
@@ -85,7 +78,6 @@ class CustomTableViewCell: UITableViewCell {
         contentView.addSubview(imagePlace)
         contentView.addSubview(raitingStackView)
         
-        raitingStackView.addArrangedSubview(imageRaiting)
         raitingStackView.addArrangedSubview(ratingCount)
         
         stackLabels.addArrangedSubview(namePlace)
