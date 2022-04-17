@@ -161,8 +161,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
     private lazy var showLocationMapButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "myLocation"), for: .normal)
-        button.addTarget(self, action: #selector(showMap), for: .touchUpInside)
+        button.setImage(UIImage(named: "compas"), for: .normal)
+        button.addTarget(self, action: #selector(showNewMap), for: .touchUpInside)
         return button
     }()
     
@@ -219,12 +219,13 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         
         stackObject.addArrangedSubview(namePlace)
         stackObject.addArrangedSubview(nameTextField)
-        stackObject.addArrangedSubview(locationPlace)
-        stackObject.addArrangedSubview(locationTextField)
         stackObject.addArrangedSubview(typePlace)
         stackObject.addArrangedSubview(typeTextField)
+    
+        contentView.addSubview(locationPlace)
+        contentView.addSubview(locationTextField)
         
-        locationPlace.addSubview(showLocationMapButton)
+        contentView.addSubview(showLocationMapButton)
         
         
         NSLayoutConstraint.activate([
@@ -248,9 +249,18 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             stackObject.topAnchor.constraint(equalTo: imagePlace.bottomAnchor, constant: 9),
             stackObject.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             stackObject.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            stackObject.heightAnchor.constraint(equalToConstant: 250),
+            stackObject.heightAnchor.constraint(equalToConstant: 150),
             
-            raitingStackView.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 20),
+            locationPlace.topAnchor.constraint(equalTo: stackObject.bottomAnchor, constant: 10),
+            locationPlace.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            locationPlace.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            locationTextField.topAnchor.constraint(equalTo: locationPlace.bottomAnchor, constant: 10),
+            locationTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            locationTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -60),
+            locationTextField.heightAnchor.constraint(equalToConstant: 35),
+            
+            raitingStackView.topAnchor.constraint(equalTo: locationTextField.bottomAnchor, constant: 20),
             raitingStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             showMapButton.topAnchor.constraint(equalTo: imagePlace.topAnchor, constant: 10),
@@ -258,8 +268,8 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
             showMapButton.heightAnchor.constraint(equalToConstant: 50),
             showMapButton.widthAnchor.constraint(equalToConstant: 50),
             
-            showLocationMapButton.topAnchor.constraint(equalTo: locationPlace.topAnchor, constant: 7),
-            showLocationMapButton.trailingAnchor.constraint(equalTo: locationPlace.trailingAnchor, constant: -10),
+            showLocationMapButton.topAnchor.constraint(equalTo: locationPlace.topAnchor, constant: 25),
+            showLocationMapButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             showLocationMapButton.heightAnchor.constraint(equalToConstant: 50),
             showLocationMapButton.widthAnchor.constraint(equalToConstant: 50),
         ])
@@ -349,10 +359,23 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         mapVC.place.locationPlace = locationTextField.text
         mapVC.place.typePlace = typeTextField.text
         mapVC.place.imageData = imagePlace.image?.pngData()
+        mapVC.imageMarker.isHidden = true
+        mapVC.adresslabel.isHidden = true
+        mapVC.addAdressButton.isHidden = true
+        mapVC.delegate = self
                 
         present(mapVC, animated: true)
     }
-
+    
+    @objc private func showNewMap() {
+        let mapVC = MapViewController()
+        mapVC.modalTransitionStyle = .flipHorizontal
+        mapVC.modalPresentationStyle = .overFullScreen
+        mapVC.showUserLocation()
+        mapVC.delegate = self
+        
+        present(mapVC, animated: true)
+    }
 }
 
 
@@ -398,4 +421,10 @@ extension NewPlacesViewController: UIImagePickerControllerDelegate, UINavigation
         dismiss(animated: true)
     }
     
+}
+
+extension NewPlacesViewController: MapViewControllerDelegate {
+    func sendAdress(_ adress: String) {
+        locationTextField.text = adress
+    }
 }
