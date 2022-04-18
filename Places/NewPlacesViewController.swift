@@ -373,6 +373,7 @@ class NewPlacesViewController: UIViewController, UINavigationControllerDelegate 
         mapVC.modalPresentationStyle = .overFullScreen
         mapVC.showUserLocation()
         mapVC.delegate = self
+        mapVC.getDirectionsButton.isHidden = true
         
         present(mapVC, animated: true)
     }

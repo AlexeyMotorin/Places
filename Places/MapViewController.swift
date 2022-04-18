@@ -13,7 +13,6 @@ protocol MapViewControllerDelegate: AnyObject {
     func sendAdress(_ adress: String)
 }
 
-
 class MapViewController: UIViewController {
     
     var place = Places()
@@ -21,6 +20,7 @@ class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 1000
     var adress: String = ""
+    var placeCoordinate: CLLocationCoordinate2D? // принимает координаты места заведение
     
     weak var delegate: MapViewControllerDelegate?
     
@@ -63,6 +63,16 @@ class MapViewController: UIViewController {
         return lable
     }()
     
+    private lazy var distanceAndTimeLabel: UILabel = {
+        let lable = UILabel()
+        lable.translatesAutoresizingMaskIntoConstraints = false
+        lable.font = UIFont(name: "Apple Sd Gothic Neo", size: 25)
+        lable.textAlignment = .center
+        lable.numberOfLines = 2
+        lable.isHidden = true
+        return lable
+    }()
+    
     lazy var addAdressButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +82,14 @@ class MapViewController: UIViewController {
         button.layer.borderWidth = 3
         button.layer.borderColor = UIColor.black.cgColor
         button.addTarget(self, action: #selector(addAdress), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var getDirectionsButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "GetDirection"), for: .normal)
+        button.addTarget(self, action: #selector(getDirections), for: .touchUpInside)
         return button
     }()
     
@@ -101,6 +119,9 @@ class MapViewController: UIViewController {
         mapKit.addSubview(adresslabel)
         mapKit.addSubview(addAdressButton)
         mapKit.addSubview(imageDone)
+        mapKit.addSubview(getDirectionsButton)
+        mapKit.addSubview(distanceAndTimeLabel)
+        
         
         NSLayoutConstraint.activate([
             closeMapButton.topAnchor.constraint(equalTo: mapKit.topAnchor, constant: 60),
@@ -124,6 +145,12 @@ class MapViewController: UIViewController {
             adresslabel.leadingAnchor.constraint(equalTo: mapKit.leadingAnchor, constant: 10),
             adresslabel.heightAnchor.constraint(equalToConstant: 70),
             
+            distanceAndTimeLabel.centerXAnchor.constraint(equalTo: mapKit.centerXAnchor),
+            distanceAndTimeLabel.topAnchor.constraint(equalTo: mapKit.topAnchor, constant: 80),
+            distanceAndTimeLabel.trailingAnchor.constraint(equalTo: mapKit.trailingAnchor, constant: -10),
+            distanceAndTimeLabel.leadingAnchor.constraint(equalTo: mapKit.leadingAnchor, constant: 10),
+            distanceAndTimeLabel.heightAnchor.constraint(equalToConstant: 70),
+            
             addAdressButton.centerXAnchor.constraint(equalTo: mapKit.centerXAnchor),
             addAdressButton.bottomAnchor.constraint(equalTo: mapKit.bottomAnchor, constant: -80),
             addAdressButton.heightAnchor.constraint(equalToConstant: 50),
@@ -132,7 +159,12 @@ class MapViewController: UIViewController {
             imageDone.centerXAnchor.constraint(equalTo: mapKit.centerXAnchor),
             imageDone.bottomAnchor.constraint(equalTo: mapKit.bottomAnchor, constant: -80),
             imageDone.heightAnchor.constraint(equalToConstant: 50),
-            imageDone.widthAnchor.constraint(equalToConstant: 50)
+            imageDone.widthAnchor.constraint(equalToConstant: 50),
+            
+            getDirectionsButton.centerXAnchor.constraint(equalTo: mapKit.centerXAnchor),
+            getDirectionsButton.bottomAnchor.constraint(equalTo: mapKit.bottomAnchor, constant: -80),
+            getDirectionsButton.heightAnchor.constraint(equalToConstant: 50),
+            getDirectionsButton.widthAnchor.constraint(equalToConstant: 50)
             
         ])
     }
@@ -164,6 +196,62 @@ class MapViewController: UIViewController {
     
     @objc private func showMyLocation() {
         showUserLocation()
+    }
+    
+    // MARK: постройка маршрута
+    @objc private func getDirections() {
+        getDirect()
+    }
+    
+    private func getDirect() {
+        guard let location = locationManager.location?.coordinate else {
+            showAlert(title: "Ошибка", message: "локация не определена")
+            return
+        }
+        
+        guard let request = creatDirectionRequest(from: location) else {
+            showAlert(title: "Ошибка", message: "местоположение не определено")
+            return
+        }
+        
+        let directions = MKDirections(request: request) // создаем маршрут
+        // запускаем расчет маршрута
+        directions.calculate { (response, error) in
+            if let error = error {
+                print(error)
+                return
+            }
+            // если ошибки нет извлекаем обработанный маршрут
+            guard let response = response else {
+                self.showAlert(title: "Ошибка", message: "Маршрут не построен")
+                return
+            }
+            // респонс содержит в себе массив с маршрутами, если не запращивать альтернативные маршруты, тогда будет не больше одного, каждый обект содержит сведения о геометории которую можно отобразить на карте, имея эти данные мы можем создать на карте маршрут
+            for route in response.routes {
+                self.mapKit.addOverlay(route.polyline) // добавляем маршрут
+                self.mapKit.setVisibleMapRect(route.polyline.boundingMapRect, animated: true) // метод чтобы маршрут был виден целиком
+                
+                
+                self.distanceAndTimeLabel.text = "Расстояние: \(String(format: "%.1f", route.distance / 1000)) км\nПримерное время: \(String(format: "%.0f",route.expectedTravelTime / 60)) мин."
+                self.distanceAndTimeLabel.isHidden = false
+  
+            }
+        }
+    }
+    
+    private func creatDirectionRequest(from coordinate: CLLocationCoordinate2D) -> MKDirections.Request? {
+        // передаем координаты заведения
+        guard let destinationCoordinate = placeCoordinate else { return nil }
+        // определяем точку старта маршрута
+        let startLocation = MKPlacemark(coordinate: coordinate)
+        let destination = MKPlacemark(coordinate: destinationCoordinate)
+        // создаем запрос на построение маршрута от точки а до точки б
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: startLocation)
+        request.destination = MKMapItem(placemark: destination)
+        request.transportType = .walking // вид транспорта
+        request.requestsAlternateRoutes = true // построение альтерантивных маршрутов
+        return request
     }
     
     func showUserLocation() {
@@ -205,6 +293,7 @@ class MapViewController: UIViewController {
             guard let placemarkLocation = placemark?.location else { return }
             
             annotation.coordinate = placemarkLocation.coordinate
+            self.placeCoordinate = placemarkLocation.coordinate
             
             self.mapKit.showAnnotations([annotation], animated: true)
             self.mapKit.selectAnnotation(annotation, animated: true)
@@ -319,6 +408,13 @@ extension MapViewController: MKMapViewDelegate {
             
         }
         
+    }
+    
+    // метод подсвечивает маршруты в нужном цвете, так как маршруты невидны, нужно сделать наложение
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
+        renderer.strokeColor = .blue
+        return renderer
     }
 }
 
