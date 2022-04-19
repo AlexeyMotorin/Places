@@ -21,6 +21,12 @@ class MapViewController: UIViewController {
     let regionInMeters: Double = 1000
     var adress: String = ""
     var placeCoordinate: CLLocationCoordinate2D? // принимает координаты места заведение
+    var directionsArray = [MKDirections]()
+    var previousLocation: CLLocation? {
+        didSet {
+            startTracerUserLocation()
+        }
+    }
     
     weak var delegate: MapViewControllerDelegate?
     
@@ -122,7 +128,6 @@ class MapViewController: UIViewController {
         mapKit.addSubview(getDirectionsButton)
         mapKit.addSubview(distanceAndTimeLabel)
         
-        
         NSLayoutConstraint.activate([
             closeMapButton.topAnchor.constraint(equalTo: mapKit.topAnchor, constant: 60),
             closeMapButton.trailingAnchor.constraint(equalTo: mapKit.trailingAnchor, constant: -40),
@@ -200,14 +205,13 @@ class MapViewController: UIViewController {
     
     // MARK: постройка маршрута
     @objc private func getDirections() {
-        getDirect()
-    }
-    
-    private func getDirect() {
         guard let location = locationManager.location?.coordinate else {
             showAlert(title: "Ошибка", message: "локация не определена")
             return
         }
+        
+        locationManager.startUpdatingLocation() // режим постоянного отслеживания текущего местоположения пользователя
+        previousLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
         
         guard let request = creatDirectionRequest(from: location) else {
             showAlert(title: "Ошибка", message: "местоположение не определено")
@@ -215,6 +219,7 @@ class MapViewController: UIViewController {
         }
         
         let directions = MKDirections(request: request) // создаем маршрут
+        resetMapView(withNew: directions)
         // запускаем расчет маршрута
         directions.calculate { (response, error) in
             if let error = error {
@@ -231,14 +236,12 @@ class MapViewController: UIViewController {
                 self.mapKit.addOverlay(route.polyline) // добавляем маршрут
                 self.mapKit.setVisibleMapRect(route.polyline.boundingMapRect, animated: true) // метод чтобы маршрут был виден целиком
                 
-                
                 self.distanceAndTimeLabel.text = "Расстояние: \(String(format: "%.1f", route.distance / 1000)) км\nПримерное время: \(String(format: "%.0f",route.expectedTravelTime / 60)) мин."
                 self.distanceAndTimeLabel.isHidden = false
-  
             }
         }
     }
-    
+        
     private func creatDirectionRequest(from coordinate: CLLocationCoordinate2D) -> MKDirections.Request? {
         // передаем координаты заведения
         guard let destinationCoordinate = placeCoordinate else { return nil }
@@ -262,6 +265,19 @@ class MapViewController: UIViewController {
         }
     }
     
+    private func startTracerUserLocation() {
+        guard let previousLocation = previousLocation else { return }
+        let center = getCenterLocation(for: mapKit)
+        guard center.distance(from: previousLocation) > 50 else { return }
+        self.previousLocation = center
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3)  {
+            self.showUserLocation()
+        }
+        
+
+    }
+    
     // получаем координаты точки на центре экрана
     private func getCenterLocation(for mapView: MKMapView) -> CLLocation {
         let latitude = mapView.centerCoordinate.latitude
@@ -269,6 +285,14 @@ class MapViewController: UIViewController {
         
         return CLLocation(latitude: latitude, longitude: longitude)
     }
+    
+    private func resetMapView(withNew directions: MKDirections) {
+        mapKit.removeOverlays(mapKit.overlays)
+        directionsArray.append(directions)
+        let _ = directionsArray.map { $0.cancel() }
+        directionsArray.removeAll()
+    }
+    
     
     private func setupPlaceMark() {
         guard let location = place.locationPlace else { return }
@@ -381,6 +405,9 @@ extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         let center = getCenterLocation(for: mapView)
         let geocoder = CLGeocoder()
+        
+        geocoder.cancelGeocode()
+        
         
         geocoder.reverseGeocodeLocation(center) { (placemarks, error) in
             if let error = error {
